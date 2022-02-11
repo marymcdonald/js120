@@ -1,4 +1,3 @@
-/*
 //q1
 let qux = { foo: 1 };
 let baz = Object.create(qux);
@@ -89,7 +88,7 @@ console.log(fooA.qux); // undefined
 console.log(fooC.qux); // undefined
 console.log(fooA.hasOwnProperty("qux")); // false
 console.log(fooC.hasOwnProperty("qux")); // false
-*/
+
 
 //q5
 
