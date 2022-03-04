@@ -20,6 +20,9 @@ class Square {
   getMarker() {
     return this.marker;
   }
+  resetMarker() {
+    this.marker = Square.UNUSED_SQUARE;
+  }
 }
 
 class Board {
@@ -70,6 +73,13 @@ class Board {
     console.log("");
     this.display();
   }
+
+  reset() {
+    for (const key in this.squares) {
+      this.squares[key].resetMarker();
+    }
+  }
+
 }
 
 class Player {
@@ -114,22 +124,51 @@ class TTTGame {
 
   play() {
     this.displayWelcomeMessage();
+
+    while (true) {
+      this.oneGame();
+      if (!this.playAgain()) break;
+
+    }
+
+
+    this.displayGoodbyeMessage();
+  }
+
+  oneGame() {
+    this.board.reset();
     this.board.display();
 
     while (true) {
-
       this.humanMoves();
       if (this.gameOver()) break;
-
       this.computerMoves();
       if (this.gameOver()) break;
-
       this.board.displayWithClear();
     }
-
     this.board.displayWithClear();
     this.displayResults();
-    this.displayGoodbyeMessage();
+  }
+
+  playAgain() {
+    let answer;
+    const VALID_ANSWERS = ['y', 'n'];
+
+    while (true) {
+      const prompt = 'Would you like to play again? (y/n) ';
+      answer = readline.question(prompt);
+
+      if (VALID_ANSWERS.includes(answer.toLowerCase())) break;
+
+      console.log("Sorry, that's not a valid choice.");
+      console.log("");
+    }
+
+    if (answer.toLowerCase() === 'y') {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   humanMoves() {
@@ -137,12 +176,14 @@ class TTTGame {
 
     while (true) {
       let validChoices = this.board.unusedSquares();
-      const prompt = `Choose a square (${validChoices.join(", ")}): `;
+      const prompt = `Choose a square (${TTTGame.joinOr(validChoices)}): `;
       choice = readline.question(prompt);
 
       if (validChoices.includes(choice)) break;
 
       console.log("Sorry, that's not a valid choice.");
+      console.log(`your choice: ${choice}`);
+      console.log(`${validChoices}`);
       console.log("");
     }
     this.board.markSquareAt(choice, this.human.getMarker());
@@ -195,6 +236,17 @@ class TTTGame {
     return TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
       return this.board.countMarkersFor(player, row) === 3;
     });
+  }
+  static joinOr(choices, delimiter = ', ', joinerWord = 'or') {
+    if (choices.length === 1) {
+      return String(choices[0]);
+    } else if (choices.length === 2) {
+      return `${choices[0]} ${joinerWord} ${choices[1]}`;
+    } else {
+      let lastNumber = choices[choices.length - 1];
+      let result = choices.slice(0, -1).join(delimiter);
+      return `${result}${delimiter}${joinerWord} ${lastNumber}`;
+    }
   }
 }
 
